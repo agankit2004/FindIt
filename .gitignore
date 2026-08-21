@@ -11,3 +11,4 @@ shots/
 smoke.py
 shots*.py
 .DS_Store
+.env
