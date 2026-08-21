@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}My claims{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Claims</h1>
+  <p>Things you're trying to get back, and people trying to get things back from you.</p>
+</div>
+
+<div class="two-col" style="grid-template-columns:1fr 1fr">
+  <div>
+    <h2 style="margin-bottom:12px">Claims you made</h2>
+    {% if made %}
+    <div class="panel" style="padding:0">
+      {% for c in made %}
+      <a href="{{ c.get_absolute_url }}" class="row-between" style="padding:14px 17px;border-bottom:1px solid var(--rule-soft);color:inherit;text-decoration:none">
+        <span>
+          <b>{{ c.item.title }}</b>
+          <span class="tiny faint mono" style="display:block">{{ c.ref }} · {{ c.created_at|timesince }} ago</span>
+        </span>
+        <span class="pill {% if c.status == 'RETURNED' %}pill-found{% elif c.status == 'REJECTED' or c.status == 'WITHDRAWN' %}pill-lost{% else %}pill-amber{% endif %}">{{ c.get_status_display }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty" style="padding:32px 20px">
+      <h3>No claims yet</h3>
+      <p>Spot something of yours on the found board and claim it.</p>
+      <a class="btn btn-primary" href="{% url 'items:found' %}">Browse found items</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <h2 style="margin-bottom:12px">Claims on your reports</h2>
+    {% if received %}
+    <div class="panel" style="padding:0">
+      {% for c in received %}
+      <a href="{{ c.get_absolute_url }}" class="row-between" style="padding:14px 17px;border-bottom:1px solid var(--rule-soft);color:inherit;text-decoration:none">
+        <span>
+          <b>{{ c.item.title }}</b>
+          <span class="tiny faint" style="display:block">from {{ c.claimant.name }}</span>
+        </span>
+        <span class="pill {% if c.status == 'RETURNED' %}pill-found{% elif c.status == 'REJECTED' or c.status == 'WITHDRAWN' %}pill-lost{% else %}pill-amber{% endif %}">{{ c.get_status_display }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty" style="padding:32px 20px">
+      <h3>Nothing to review</h3>
+      <p>When someone claims an item you posted, it lands here for you to check.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

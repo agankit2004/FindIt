@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block title %}{{ item.title }}{% endblock %}
+{% block content %}
+
+<div class="row" style="margin-bottom:14px;gap:9px">
+  <a class="btn btn-quiet" href="{% if item.kind == 'LOST' %}{% url 'items:lost' %}{% else %}{% url 'items:found' %}{% endif %}">← Back to the board</a>
+  <span class="mono tiny faint">{{ item.ref }}</span>
+</div>
+
+<div class="detail-grid">
+  <div class="stack">
+    <div class="gallery">
+      <div class="gallery-main {% if not item.cover %}empty{% endif %}">
+        {% if item.cover %}<img src="{{ item.cover.image.url }}" alt="{{ item.title }}">
+        {% else %}<span class="tag-glyph" style="font-size:4.5rem">{{ item.category.glyph }}</span>{% endif %}
+      </div>
+      {% if item.photos.count > 1 %}
+      <div class="gallery-strip">
+        {% for p in item.photos.all %}<img src="{{ p.image.url }}" alt="">{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="panel">
+      <div class="row-between wrap" style="margin-bottom:12px">
+        <div>
+          <span class="stamp stamp-static {% if item.kind == 'LOST' %}stamp-lost{% else %}stamp-found{% endif %}">{{ item.kind }}</span>
+          <span class="pill" style="margin-left:6px">{{ item.get_status_display }}</span>
+        </div>
+        <span class="mono tiny faint">Posted {{ item.created_at|timesince }} ago</span>
+      </div>
+
+      <h1 style="margin-bottom:12px">{{ item.title }}</h1>
+      <p style="margin:0 0 18px">{{ item.description|linebreaksbr }}</p>
+
+      <dl class="spec">
+        <dt>Category</dt><dd>{{ item.category.name }}</dd>
+        {% if item.colour %}<dt>Colour</dt><dd>{{ item.colour }}</dd>{% endif %}
+        {% if item.brand %}<dt>Brand</dt><dd>{{ item.brand }}</dd>{% endif %}
+        <dt>Place</dt><dd>{{ item.location.name }}{% if item.place_detail %} — {{ item.place_detail }}{% endif %}</dd>
+        <dt>{% if item.kind == 'LOST' %}Lost on{% else %}Found on{% endif %}</dt>
+        <dd>{{ item.happened_on|date:"j F Y" }}{% if item.happened_at %}, around {{ item.happened_at|time:"g:i a" }}{% endif %}</dd>
+        {% if item.handover %}<dt>Where it is</dt><dd>{{ item.get_handover_display }}</dd>{% endif %}
+        <dt>Posted by</dt><dd>{{ item.reporter.name }}{% if mine %} (you){% endif %}</dd>
+      </dl>
+    </div>
+
+    {% if mine and suggestions %}
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Possible matches</h2>
+        <span class="pill pill-brand">{{ suggestions|length }} found</span>
+      </div>
+      <p class="small muted" style="margin:-6px 0 14px">
+        Scored on category, place, date and wording. Open one to see the full report.
+      </p>
+      {% for other, score, reasons in suggestions %}
+      <div class="match">
+        <div class="match-thumb">
+          {% if other.cover %}<img src="{{ other.cover.image.url }}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px">
+          {% else %}<span style="opacity:.4">{{ other.category.glyph }}</span>{% endif %}
+        </div>
+        <div class="grow">
+          <div class="row-between">
+            <a href="{{ other.get_absolute_url }}" style="font-weight:600">{{ other.title }}</a>
+            <span class="mono small" style="color:{% if score >= 55 %}var(--found){% else %}var(--brand){% endif %}">{{ score|floatformat:0 }}%</span>
+          </div>
+          <div class="tiny faint mono">{{ other.ref }} · {{ other.location.name }}</div>
+          <div class="small muted" style="margin-top:4px">{{ reasons|join:" · " }}</div>
+          <div class="meter {% if score >= 55 %}hot{% endif %}"><i style="width:{{ score|floatformat:0 }}%"></i></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if mine and claims %}
+    <div class="panel">
+      <div class="panel-head"><h2>Claims on this item</h2></div>
+      {% for c in claims %}
+      <div class="row-between" style="padding:11px 0;border-bottom:1px solid var(--rule-soft)">
+        <div>
+          <a href="{{ c.get_absolute_url }}" style="font-weight:600">{{ c.claimant.name }}</a>
+          <div class="tiny faint mono">{{ c.ref }} · {{ c.created_at|timesince }} ago</div>
+        </div>
+        <span class="pill {% if c.status == 'APPROVED' or c.status == 'RETURNED' %}pill-found{% elif c.status == 'REJECTED' %}pill-lost{% else %}pill-amber{% endif %}">{{ c.get_status_display }}</span>
+      </div>
+      {% empty %}
+      <p class="small muted">Nobody has claimed this yet.</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <aside class="stack">
+    {% if mine %}
+      <div class="panel">
+        <h3>Your report</h3>
+        <p class="small muted">You posted this. When someone claims it you'll get a notification and can check their proof.</p>
+        {% if item.secret_detail %}
+          <div class="panel-tight" style="background:var(--amber-wash);border:1px solid #EFDBB8;border-radius:10px;margin-bottom:12px">
+            <div class="eyebrow" style="color:var(--amber)">Your verification detail</div>
+            <div class="small" style="color:var(--amber);margin-top:5px">{{ item.secret_detail }}</div>
+            <div class="tiny" style="color:var(--amber);opacity:.75;margin-top:6px">Only you can see this.</div>
+          </div>
+        {% endif %}
+        {% if item.is_open %}
+        <form method="post" action="{% url 'items:close' item.pk %}">
+          {% csrf_token %}
+          <button class="btn btn-ghost btn-block" type="submit">Close this report</button>
+        </form>
+        {% endif %}
+      </div>
+    {% elif my_claim %}
+      <div class="panel">
+        <h3>You've claimed this</h3>
+        <p class="small muted">Claim {{ my_claim.ref }} — {{ my_claim.get_status_display|lower }}.</p>
+        <a class="btn btn-primary btn-block" href="{{ my_claim.get_absolute_url }}">Open the claim</a>
+      </div>
+    {% elif item.status != 'RETURNED' and item.status != 'CLOSED' %}
+      <div class="panel">
+        {% if item.kind == 'FOUND' %}
+          <h3>Is this yours?</h3>
+          <p class="small muted">You'll need to describe something about it that isn't in this listing. {{ item.reporter.name }} checks it against what they know.</p>
+          <a class="btn btn-primary btn-block btn-lg" href="{% url 'claims:create' item.pk %}">This is mine</a>
+        {% else %}
+          <h3>Have you seen this?</h3>
+          <p class="small muted">If you've picked this up, open a claim to tell {{ item.reporter.name }} you have it.</p>
+          <a class="btn btn-go btn-block btn-lg" href="{% url 'claims:create' item.pk %}">I have this</a>
+        {% endif %}
+        <p class="tiny faint" style="margin:12px 0 0">Contact details stay hidden until the claim is approved.</p>
+      </div>
+    {% else %}
+      <div class="panel center">
+        <div class="stamp stamp-static stamp-found" style="margin-bottom:8px">{{ item.get_status_display }}</div>
+        <p class="small muted" style="margin:0">This one's settled. Nothing to do here.</p>
+      </div>
+    {% endif %}
+
+    <div class="panel">
+      <div class="eyebrow">Tag number</div>
+      <div class="mono" style="font-size:1.15rem;font-weight:700;margin-top:5px">{{ item.ref }}</div>
+      <p class="tiny faint" style="margin:6px 0 0">Quote this when you talk to someone about it.</p>
+    </div>
+  </aside>
+</div>
+{% endblock %}

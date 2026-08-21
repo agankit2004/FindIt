@@ -1,0 +1,22 @@
+{% if page.object_list %}
+  <div class="grid">
+    {% for item in page.object_list %}{% include 'partials/_card.html' %}{% endfor %}
+  </div>
+  {% if page.has_other_pages %}
+  <nav class="pager">
+    {% if page.has_previous %}
+      <a class="btn btn-ghost" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page.previous_page_number }}">Previous</a>
+    {% endif %}
+    <span class="mono small faint">{{ page.number }} / {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}
+      <a class="btn btn-ghost" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}page={{ page.next_page_number }}">Next</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+{% else %}
+  <div class="empty">
+    <h3>No items fit that</h3>
+    <p>Try a broader search, or widen the date range. New reports arrive all day.</p>
+    <a class="btn btn-primary" href="{% url 'items:report' 'LOST' %}">Report a lost item</a>
+  </div>
+{% endif %}

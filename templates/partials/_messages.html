@@ -1,0 +1,12 @@
+{% if messages %}
+<div class="flash-stack">
+  {% for m in messages %}
+  <div class="flash flash-{{ m.tags|default:'info' }}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px;flex:0 0 17px;margin-top:1px">
+      {% if 'success' in m.tags %}<path d="M20 6L9 17l-5-5"/>{% else %}<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>{% endif %}
+    </svg>
+    <span>{{ m }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div class="eyebrow" style="color:rgba(255,255,255,.6)">Lost &amp; Found · IIT Kanpur</div>
+  <h1>Lost something? <em>Let's find it together.</em></h1>
+  <p>Post what you lost or what you picked up. FindIt lines the two boards up against each other and tells you when something fits.</p>
+  <div class="hero-actions">
+    <a class="btn btn-primary btn-lg" href="{% url 'items:report' 'LOST' %}">Report a lost item</a>
+    <a class="btn btn-ghost btn-lg" href="{% url 'items:report' 'FOUND' %}">Report something I found</a>
+  </div>
+  <div class="hero-tally">
+    <div><b>{{ stats.returned }}</b><span>Back with owners</span></div>
+    <div><b>{{ stats.matched }}</b><span>Possible matches</span></div>
+  </div>
+</section>
+
+{% if my_open_items %}
+<div class="flash flash-info" style="margin-bottom:20px">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px;flex:0 0 17px;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+  <span>You have {{ my_open_items }} open report{{ my_open_items|pluralize }}. <a href="{% url 'items:mine' %}">Check for matches</a>.</span>
+</div>
+{% endif %}
+
+<div class="two-col">
+  <div class="stack">
+
+    <section>
+      <div class="panel-head">
+        <h2>Recently found</h2>
+        <a class="small" href="{% url 'items:found' %}">See all found items →</a>
+      </div>
+      {% if found_recent %}
+        <div class="grid">
+          {% for item in found_recent %}{% include 'partials/_card.html' %}{% endfor %}
+        </div>
+      {% else %}
+        <div class="empty">
+          <h3>Nothing handed in yet</h3>
+          <p>When somebody picks something up and posts it here, it shows up on this board.</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <section style="margin-top:26px">
+      <div class="panel-head">
+        <h2>Recently lost</h2>
+        <a class="small" href="{% url 'items:lost' %}">See all lost items →</a>
+      </div>
+      {% if lost_recent %}
+        <div class="grid">
+          {% for item in lost_recent %}{% include 'partials/_card.html' %}{% endfor %}
+        </div>
+      {% else %}
+        <div class="empty">
+          <h3>The board is clear</h3>
+          <p>Nobody has reported anything missing. Long may it last.</p>
+        </div>
+      {% endif %}
+    </section>
+
+  </div>
+
+  <aside class="stack">
+    <div class="panel">
+      <h3>On the board</h3>
+      <div class="stat-grid" style="margin-top:12px">
+        <div class="stat"><b>{{ stats.lost }}</b><span>Lost</span></div>
+        <div class="stat"><b>{{ stats.found }}</b><span>Found</span></div>
+        <div class="stat"><b>{{ stats.matched }}</b><span>Matched</span></div>
+        <div class="stat"><b>{{ stats.returned }}</b><span>Returned</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>How it works</h3>
+      <div class="steps" style="grid-template-columns:1fr;margin-top:12px">
+        <div class="step">
+          <b>Step one</b>
+          Post it
+          <p>Photo, category, where and roughly when. Two minutes.</p>
+        </div>
+        <div class="step">
+          <b>Step two</b>
+          We match it
+          <p>Every new report is scored against the opposite board. Strong hits notify both sides.</p>
+        </div>
+        <div class="step">
+          <b>Step three</b>
+          Prove and collect
+          <p>Describe a detail that isn't in the listing. The finder approves, then you arrange the handover.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="background:var(--brand-wash);border-color:#CBD4FB">
+      <div class="eyebrow" style="color:var(--brand-dark)">A note on honesty</div>
+      <p class="small" style="margin:7px 0 0;color:var(--brand-dark)">
+        Found something? Hold on to the one detail nobody could guess from a photo.
+        That's what stops the wrong person walking off with it.
+      </p>
+    </div>
+  </aside>
+</div>
+{% endblock %}

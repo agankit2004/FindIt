@@ -1,0 +1,87 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}FindIt{% endblock %} · FindIt</title>
+<meta name="description" content="Lost & Found for IIT Kanpur.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/findit.css' %}">
+<script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+</head>
+<body>
+<div class="shell">
+
+  <aside class="sidebar">
+    <a class="brand" href="{% url 'items:home' %}">
+      <span class="brand-mark">F</span>
+      <span>
+        <span class="brand-name">FindIt</span>
+        <span class="brand-sub">IIT Kanpur</span>
+      </span>
+    </a>
+
+    <nav class="nav">
+      {% include 'partials/_navlink.html' with url='items:home' label='Home' icon='home' %}
+      {% include 'partials/_navlink.html' with url='items:lost' label='Lost items' icon='search' %}
+      {% include 'partials/_navlink.html' with url='items:found' label='Found items' icon='box' %}
+      {% include 'partials/_navlink.html' with url='items:mine' label='My reports' icon='tag' %}
+      {% include 'partials/_navlink.html' with url='claims:mine' label='My claims' icon='check' count=open_claims_count %}
+      {% include 'partials/_navlink.html' with url='items:messages' label='Messages' icon='chat' %}
+      {% include 'partials/_navlink.html' with url='items:notifications' label='Notifications' icon='bell' count=unread_count %}
+      {% include 'partials/_navlink.html' with url='accounts:profile' label='Profile' icon='user' %}
+    </nav>
+
+    <a class="btn btn-primary btn-block" href="{% url 'items:report' 'LOST' %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Report an item
+    </a>
+
+    <div class="sidebar-foot">
+      <div class="slot-card">
+        <div class="eyebrow">Coming next</div>
+        <div style="font-family:var(--display);font-weight:600;margin:5px 0 4px">AI assistant</div>
+        <p class="tiny muted" style="margin:0">
+          Describe what you lost in plain English and let the agent do the searching.
+        </p>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <form class="searchbox" action="{% url 'items:list' %}" method="get" role="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" name="q" value="{{ request.GET.q|default:'' }}"
+               placeholder="Search items, brands, places…" aria-label="Search">
+      </form>
+
+      <div class="row" style="margin-left:auto">
+        <a class="icon-btn" href="{% url 'items:notifications' %}" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+          {% if unread_count %}<span class="dot">{{ unread_count }}</span>{% endif %}
+        </a>
+        <a class="icon-btn" href="{% url 'items:messages' %}" aria-label="Messages">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.4 8.4 0 01-9 8.4 8.9 8.9 0 01-4-.9L3 21l1.9-4.6a8.4 8.4 0 01-.9-4 8.4 8.4 0 018.4-8.4h.5a8.4 8.4 0 018.1 8.1z"/></svg>
+        </a>
+        <a class="row" href="{% url 'accounts:profile' %}" style="text-decoration:none;color:inherit;padding-left:8px;border-left:1px solid var(--rule);margin-left:4px">
+          {% if user.avatar %}<img class="avatar" src="{{ user.avatar.url }}" alt="">
+          {% else %}<span class="avatar">{{ user.initials }}</span>{% endif %}
+          <span class="small" style="line-height:1.2">
+            <b style="display:block">{{ user.name }}</b>
+            <span class="mono tiny faint">{{ user.roll_id }}</span>
+          </span>
+        </a>
+      </div>
+    </header>
+
+    <main class="content">
+      {% include 'partials/_messages.html' %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+</body>
+</html>

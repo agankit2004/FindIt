@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Profile</h1>
+  <p>Keep this current — it's how people reach you about your things.</p>
+</div>
+
+<div class="two-col">
+  <div class="panel">
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      <div class="field">
+        <label>Name</label>
+        <input type="text" value="{{ user.name }}" disabled>
+        <div class="help">Set from your email id when you joined. Write to the FindIt admins if it's wrong.</div>
+      </div>
+
+      <div class="field">
+        <label>Institute email</label>
+        <input type="text" value="{{ user.email }}" disabled>
+      </div>
+
+      <hr class="divider">
+
+      <div class="field-row">
+        {% include 'partials/_field.html' with field=form.hall %}
+        {% include 'partials/_field.html' with field=form.room %}
+      </div>
+      {% include 'partials/_field.html' with field=form.phone %}
+      {% include 'partials/_field.html' with field=form.avatar %}
+
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Save changes</button>
+        <a class="btn btn-quiet" href="{% url 'items:home' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="stack">
+    <div class="panel">
+      <div class="row" style="gap:14px">
+        {% if user.avatar %}<img class="avatar lg" src="{{ user.avatar.url }}" alt="">
+        {% else %}<span class="avatar lg">{{ user.initials }}</span>{% endif %}
+        <div>
+          <h3>{{ user.name }}</h3>
+          <div class="mono tiny faint">{{ user.email }}</div>
+          <div class="small muted" style="margin-top:4px">{{ user.where }}</div>
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="row" style="gap:26px">
+        <div><b class="mono" style="font-size:1.5rem">{{ user.items.count }}</b><div class="eyebrow">Reports filed</div></div>
+        <div><b class="mono" style="font-size:1.5rem">{{ user.claims_made.count }}</b><div class="eyebrow">Claims made</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Session</h3>
+      <p class="small muted">You stay signed in on this device until you sign out.</p>
+      <a class="btn btn-danger btn-block" href="{% url 'accounts:logout' %}">Sign out</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

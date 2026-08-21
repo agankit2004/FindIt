@@ -1,0 +1,17 @@
+{% extends 'accounts/_auth_base.html' %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<h1>Sign in</h1>
+<p>We'll email you a six-digit code. No password to remember.</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% include 'partials/_field.html' with field=form.email %}
+  <button class="btn btn-primary btn-block btn-lg" type="submit">Send me a code</button>
+</form>
+
+<p class="tiny faint" style="margin-top:22px">
+  Your name comes from your email id. You'll add your hall, room and phone number next —
+  that's what lets someone actually return your things.
+</p>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Claim {{ item.title }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Claim · {{ item.ref }}</div>
+  <h1>{% if item.kind == 'FOUND' %}Prove it's yours{% else %}Tell them you have it{% endif %}</h1>
+</div>
+
+<div class="two-col">
+  <div class="panel">
+    <div class="row" style="gap:13px;padding-bottom:15px;border-bottom:1px solid var(--rule-soft);margin-bottom:18px">
+      <div class="match-thumb">
+        {% if item.cover %}<img src="{{ item.cover.image.url }}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px">
+        {% else %}<span style="opacity:.4">{{ item.category.glyph }}</span>{% endif %}
+      </div>
+      <div>
+        <b>{{ item.title }}</b>
+        <div class="small muted">{{ item.location.name }} · {{ item.happened_on|date:"j M" }}</div>
+      </div>
+    </div>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% include 'partials/_field.html' with field=form.proof %}
+      <div class="form-actions">
+        <button class="btn btn-primary btn-lg" type="submit">Send claim</button>
+        <a class="btn btn-quiet" href="{{ item.get_absolute_url }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <aside class="panel">
+    <h3>What happens next</h3>
+    <ol class="small muted" style="padding-left:18px;margin:10px 0 0;line-height:1.8">
+      <li>{{ item.reporter.name }} reads what you wrote.</li>
+      <li>They may ask for more detail.</li>
+      <li>If it checks out, they approve — and only then do you two see each other's phone numbers.</li>
+      <li>You agree a time and place, and mark it returned.</li>
+    </ol>
+    <hr class="divider">
+    <p class="tiny faint" style="margin:0">
+      Claiming something that isn't yours is a disciplinary matter, not a prank. Every claim is logged.
+    </p>
+  </aside>
+</div>
+{% endblock %}

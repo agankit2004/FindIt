@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block title %}Claim {{ claim.ref }}{% endblock %}
+{% block content %}
+
+<div class="page-head row-between wrap">
+  <div>
+    <div class="eyebrow">{{ claim.ref }} · on {{ claim.item.ref }}</div>
+    <h1>{{ claim.item.title }}</h1>
+    <p>
+      {% if role == 'holder' %}{{ claim.claimant.name }} says this is theirs.
+      {% else %}Your claim, with {{ claim.holder.name }}.{% endif %}
+    </p>
+  </div>
+  <a class="btn btn-ghost" href="{{ claim.item.get_absolute_url }}">View the item</a>
+</div>
+
+<div class="track">
+  {% for s in steps %}
+  <div class="track-step {{ s.state }}">
+    <b>{{ s.n }}</b>{{ s.label }}
+  </div>
+  {% endfor %}
+</div>
+
+{% if claim.status == 'REJECTED' or claim.status == 'WITHDRAWN' %}
+<div class="flash flash-error" style="margin-bottom:20px">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:17px;height:17px;flex:0 0 17px;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+  <span>This claim was {{ claim.get_status_display|lower }}. The item is back on the board.</span>
+</div>
+{% endif %}
+
+<div class="two-col">
+  <div class="stack">
+
+    <div class="panel">
+      <div class="eyebrow" style="margin-bottom:8px">What the claimant said</div>
+      <p style="margin:0">{{ claim.proof|linebreaksbr }}</p>
+      {% if role == 'holder' and claim.item.secret_detail %}
+      <div class="panel-tight" style="background:var(--amber-wash);border:1px solid #EFDBB8;border-radius:10px;margin-top:16px">
+        <div class="eyebrow" style="color:var(--amber)">Check against your detail</div>
+        <div class="small" style="color:var(--amber);margin-top:5px">{{ claim.item.secret_detail }}</div>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if actions %}
+    <div class="panel">
+      <div class="panel-head"><h2>Your move</h2></div>
+      <div class="row wrap">
+        {% for code, label in actions %}
+        <form method="post" action="{% url 'claims:advance' claim.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="to" value="{{ code }}">
+          <button class="btn {% if code == 'REJECTED' or code == 'WITHDRAWN' %}btn-danger{% elif code == 'APPROVED' or code == 'RETURNED' %}btn-go{% else %}btn-ghost{% endif %}" type="submit">{{ label }}</button>
+        </form>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if claim.status == 'HANDOVER' or claim.status == 'APPROVED' %}
+    <div class="panel">
+      <div class="panel-head"><h2>Handover</h2></div>
+      <form method="post" action="{% url 'claims:handover' claim.pk %}">
+        {% csrf_token %}
+        {% include 'partials/_field.html' with field=handover_form.handover_plan %}
+        <button class="btn btn-ghost" type="submit">Save plan</button>
+      </form>
+    </div>
+    {% endif %}
+
+    <div class="panel">
+      <div class="panel-head"><h2>Messages</h2></div>
+      <div class="thread">
+        {% for m in thread %}
+        <div class="bubble {% if m.sender == user %}me{% else %}them{% endif %}">
+          {{ m.body|linebreaksbr }}
+          <time>{{ m.created_at|date:"j M, g:i a" }}</time>
+        </div>
+        {% empty %}
+        <p class="small muted center" style="padding:16px 0">No messages yet. Say hello.</p>
+        {% endfor %}
+      </div>
+      <form method="post" action="{% url 'claims:message' claim.pk %}" style="margin-top:14px">
+        {% csrf_token %}
+        {{ message_form.body }}
+        <button class="btn btn-primary" type="submit" style="margin-top:9px">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <aside class="stack">
+    <div class="panel">
+      <h3>{% if role == 'holder' %}Claimant{% else %}Who has it{% endif %}</h3>
+      {% with other=claim.claimant|default:claim.holder %}
+      {% if role == 'holder' %}
+        <div class="row" style="gap:12px;margin-top:12px">
+          <span class="avatar">{{ claim.claimant.initials }}</span>
+          <div>
+            <b>{{ claim.claimant.name }}</b>
+            <div class="tiny faint mono">{{ claim.claimant.roll_id }}</div>
+          </div>
+        </div>
+        {% if claim.contacts_unlocked %}
+          <hr class="divider">
+          <dl class="spec">
+            <dt>Hall</dt><dd>{{ claim.claimant.where }}</dd>
+            <dt>Phone</dt><dd class="mono">{{ claim.claimant.phone }}</dd>
+          </dl>
+        {% endif %}
+      {% else %}
+        <div class="row" style="gap:12px;margin-top:12px">
+          <span class="avatar">{{ claim.holder.initials }}</span>
+          <div>
+            <b>{{ claim.holder.name }}</b>
+            <div class="tiny faint mono">{{ claim.holder.roll_id }}</div>
+          </div>
+        </div>
+        {% if claim.contacts_unlocked %}
+          <hr class="divider">
+          <dl class="spec">
+            <dt>Hall</dt><dd>{{ claim.holder.where }}</dd>
+            <dt>Phone</dt><dd class="mono">{{ claim.holder.phone }}</dd>
+          </dl>
+        {% endif %}
+      {% endif %}
+      {% endwith %}
+
+      {% if not claim.contacts_unlocked %}
+      <div class="panel-tight" style="background:var(--paper);border-radius:10px;margin-top:14px">
+        <p class="tiny muted" style="margin:0">Phone numbers appear once the claim is approved.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if claim.handover_plan %}
+    <div class="panel" style="background:var(--found-wash);border-color:#BFE0D2">
+      <div class="eyebrow" style="color:var(--found)">Handover plan</div>
+      <p class="small" style="margin:6px 0 0;color:var(--found)">{{ claim.handover_plan }}</p>
+    </div>
+    {% endif %}
+
+    <div class="panel">
+      <h3>History</h3>
+      <ul class="timeline" style="margin-top:14px;padding-left:15px">
+        {% for e in events %}
+        <li>
+          <b>{{ e.note|default:e.to_status }}</b>
+          <div class="tiny faint">{{ e.actor.name|default:"System" }} · {{ e.created_at|date:"j M, g:i a" }}</div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </aside>
+</div>
+{% endblock %}

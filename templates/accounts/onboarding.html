@@ -1,0 +1,21 @@
+{% extends 'accounts/_auth_base.html' %}
+{% block title %}Finish setting up{% endblock %}
+{% block content %}
+<h1>Almost there</h1>
+<p>Three things, so people can hand your stuff back to you.</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% include 'partials/_field.html' with field=form.name %}
+  <div class="field-row">
+    {% include 'partials/_field.html' with field=form.hall %}
+    {% include 'partials/_field.html' with field=form.room %}
+  </div>
+  {% include 'partials/_field.html' with field=form.phone %}
+  <button class="btn btn-primary btn-block btn-lg" type="submit">Start using FindIt</button>
+</form>
+
+<p class="tiny faint" style="margin-top:20px">
+  You can change your hall, room and number whenever you like. Your name is fixed after this.
+</p>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Sign in{% endblock %} · FindIt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/findit.css' %}">
+</head>
+<body>
+<div class="auth">
+  <section class="auth-pitch">
+    <a class="brand" href="/" style="color:#fff">
+      <span class="brand-mark" style="background:#fff;color:var(--brand-dark)">F</span>
+      <span>
+        <span class="brand-name" style="color:#fff">FindIt</span>
+        <span class="brand-sub" style="color:rgba(255,255,255,.6)">IIT Kanpur</span>
+      </span>
+    </a>
+
+    <div>
+      <h2>Everything ends up somewhere.</h2>
+      <p>The campus lost &amp; found, in one place instead of forty WhatsApp groups.</p>
+
+      <div class="pinboard">
+        <div class="pin"><b>Black HP laptop</b><span>PK KELKAR LIBRARY</span></div>
+        <div class="pin"><b>Hall 5 room key</b><span>OUTSIDE OAT</span></div>
+        <div class="pin"><b>Blue backpack</b><span>LECTURE HALL COMPLEX</span></div>
+        <div class="pin"><b>Prescription glasses</b><span>NEW SAC</span></div>
+      </div>
+    </div>
+
+    <p class="tiny" style="color:rgba(255,255,255,.5);margin:0">
+      Open to anyone with an @iitk.ac.in address.
+    </p>
+  </section>
+
+  <section class="auth-form">
+    <div class="auth-inner">
+      {% include 'partials/_messages.html' %}
+      {% block content %}{% endblock %}
+    </div>
+  </section>
+</div>
+</body>
+</html>

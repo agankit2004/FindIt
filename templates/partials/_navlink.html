@@ -1,0 +1,6 @@
+{% url url as target %}
+<a class="nav-link {% if request.path == target %}active{% endif %}" href="{{ target }}">
+  {% include 'partials/_icon.html' with name=icon %}
+  <span class="label">{{ label }}</span>
+  {% if count %}<span class="nav-count">{{ count }}</span>{% endif %}
+</a>

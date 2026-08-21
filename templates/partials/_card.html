@@ -1,0 +1,15 @@
+<a class="tag" href="{{ item.get_absolute_url }}">
+  <div class="tag-photo">
+    {% if item.cover %}<img src="{{ item.cover.image.url }}" alt="{{ item.title }}" loading="lazy">
+    {% else %}<span class="tag-glyph">{{ item.category.glyph }}</span>{% endif %}
+  </div>
+  <span class="stamp {% if item.kind == 'LOST' %}stamp-lost{% else %}stamp-found{% endif %}">{{ item.kind }}</span>
+  <div class="tag-body">
+    <div class="tag-ref mono">{{ item.ref }}</div>
+    <div class="tag-title">{{ item.title }}</div>
+    <div class="tag-meta">
+      <span>{% include 'partials/_icon.html' with name='pin' %}{{ item.location.name }}</span>
+      <span>{% include 'partials/_icon.html' with name='clock' %}{{ item.created_at|timesince }} ago</span>
+    </div>
+  </div>
+</a>

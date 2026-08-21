@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}My reports{% endblock %}
+{% block content %}
+<div class="page-head row-between wrap">
+  <div>
+    <h1>My reports</h1>
+    <p>Everything you've posted, and where each one stands.</p>
+  </div>
+  <a class="btn btn-primary" href="{% url 'items:report' 'LOST' %}">New report</a>
+</div>
+
+<h2 style="margin-bottom:12px">Open</h2>
+{% if open_items %}
+  <div class="grid">{% for item in open_items %}{% include 'partials/_card.html' %}{% endfor %}</div>
+{% else %}
+  <div class="empty">
+    <h3>Nothing open</h3>
+    <p>You haven't got anything on the board. If you've lost something, post it — the sooner it's up, the better the odds.</p>
+    <a class="btn btn-primary" href="{% url 'items:report' 'LOST' %}">Report a lost item</a>
+  </div>
+{% endif %}
+
+{% if closed_items %}
+<h2 style="margin:30px 0 12px">Settled</h2>
+<div class="grid">{% for item in closed_items %}{% include 'partials/_card.html' %}{% endfor %}</div>
+{% endif %}
+{% endblock %}

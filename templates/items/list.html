@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}{{ heading }}{% endblock %}
+{% block content %}
+<div class="page-head row-between wrap">
+  <div>
+    <h1>{{ heading }}</h1>
+    <p><span class="mono">{{ total }}</span> item{{ total|pluralize }} on the board right now.</p>
+  </div>
+  <div class="row">
+    <a class="btn btn-ghost" href="{% url 'items:report' 'FOUND' %}">I found something</a>
+    <a class="btn btn-primary" href="{% url 'items:report' 'LOST' %}">I lost something</a>
+  </div>
+</div>
+
+<form class="filters" method="get"
+      hx-get="{{ request.path }}" hx-target="#results" hx-trigger="change, keyup delay:400ms from:input[name=q]"
+      hx-push-url="true">
+  <div class="field grow" style="min-width:230px">
+    <label for="{{ form.q.id_for_label }}">Search</label>{{ form.q }}
+  </div>
+  <div class="field"><label>Category</label>{{ form.category }}</div>
+  <div class="field"><label>Place</label>{{ form.location }}</div>
+  <div class="field"><label>When</label>{{ form.days }}</div>
+  <button class="btn btn-ghost" type="submit">Apply</button>
+  <span class="spinner">searching…</span>
+</form>
+
+<div id="results">
+  {% include 'items/_grid.html' %}
+</div>
+{% endblock %}

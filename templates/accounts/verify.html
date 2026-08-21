@@ -1,0 +1,22 @@
+{% extends 'accounts/_auth_base.html' %}
+{% block title %}Enter your code{% endblock %}
+{% block content %}
+<h1>Check your inbox</h1>
+<p>We sent a six-digit code to <b class="mono">{{ email }}</b>.</p>
+
+<div class="mail-hint">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+  <span>The code expires in 10 minutes. Look in Promotions if it isn't in your inbox.</span>
+</div>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% include 'partials/_field.html' with field=form.code %}
+  <button class="btn btn-primary btn-block btn-lg" type="submit">Sign in</button>
+</form>
+
+<div class="row" style="margin-top:18px;justify-content:space-between">
+  <a class="small" href="{% url 'accounts:resend' %}">Send a new code</a>
+  <a class="small muted" href="{% url 'accounts:login' %}">Use a different address</a>
+</div>
+{% endblock %}

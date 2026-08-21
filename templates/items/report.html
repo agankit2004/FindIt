@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Report {{ kind|lower }} item{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">New report</div>
+  <h1>{% if kind == 'LOST' %}Report something you lost{% else %}Report something you found{% endif %}</h1>
+  <p>
+    {% if kind == 'LOST' %}
+      Detail is what makes this work. Everything you add is another thing a match can hook onto.
+    {% else %}
+      Thanks for picking it up. Describe it publicly, but keep one identifying detail back for verification.
+    {% endif %}
+  </p>
+</div>
+
+<div class="row" style="margin-bottom:18px;gap:8px">
+  <a class="btn {% if kind == 'LOST' %}btn-primary{% else %}btn-ghost{% endif %}" href="{% url 'items:report' 'LOST' %}">I lost it</a>
+  <a class="btn {% if kind == 'FOUND' %}btn-primary{% else %}btn-ghost{% endif %}" href="{% url 'items:report' 'FOUND' %}">I found it</a>
+</div>
+
+<div class="two-col">
+  <div class="panel">
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="flash flash-error">{{ form.non_field_errors }}</div>{% endif %}
+
+      {% include 'partials/_field.html' with field=form.title %}
+      <div class="field-row">
+        {% include 'partials/_field.html' with field=form.category %}
+        {% include 'partials/_field.html' with field=form.colour %}
+      </div>
+      {% include 'partials/_field.html' with field=form.brand %}
+      {% include 'partials/_field.html' with field=form.description %}
+
+      <hr class="divider">
+      <div class="eyebrow" style="margin-bottom:12px">Where and when</div>
+      {% include 'partials/_field.html' with field=form.location %}
+      {% include 'partials/_field.html' with field=form.place_detail %}
+      <div class="field-row">
+        {% include 'partials/_field.html' with field=form.happened_on %}
+        {% include 'partials/_field.html' with field=form.happened_at %}
+      </div>
+
+      {% if kind == 'FOUND' %}
+      <hr class="divider">
+      <div class="eyebrow" style="margin-bottom:12px">Handover &amp; verification</div>
+      {% include 'partials/_field.html' with field=form.handover %}
+      {% include 'partials/_field.html' with field=form.secret_detail %}
+      {% endif %}
+
+      <hr class="divider">
+      {% include 'partials/_field.html' with field=form.photos %}
+
+      <div class="form-actions">
+        <button class="btn btn-primary btn-lg" type="submit">Post this report</button>
+        <a class="btn btn-quiet" href="{% url 'items:home' %}">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <aside class="stack">
+    <div class="panel">
+      <h3>What makes a match land</h3>
+      <ul class="small muted" style="padding-left:17px;margin:10px 0 0;line-height:1.75">
+        <li>The category and the place carry the most weight.</li>
+        <li>An exact brand or colour adds a lot.</li>
+        <li>Reports within a day or two of each other score higher.</li>
+        <li>Unusual words in your description — a sticker, a strap, a dent — are what separate your bag from forty identical ones.</li>
+      </ul>
+    </div>
+    {% if kind == 'FOUND' %}
+    <div class="panel" style="background:var(--amber-wash);border-color:#EFDBB8">
+      <div class="eyebrow" style="color:var(--amber)">Keep one thing back</div>
+      <p class="small" style="margin:7px 0 0;color:var(--amber)">
+        The verification detail is never shown publicly. A claimant has to describe it from memory —
+        that's the whole check.
+      </p>
+    </div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}
