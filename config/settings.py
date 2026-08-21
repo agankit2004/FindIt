@@ -121,3 +121,4 @@ OTP_TTL_MINUTES = int(os.getenv("OTP_TTL_MINUTES", "10"))
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 180
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
+CSRF_TRUSTED_ORIGINS = ["https://findit-production-2bd1.up.railway.app"]
