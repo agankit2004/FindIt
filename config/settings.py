@@ -1,7 +1,6 @@
 """Django settings for FindIt — campus lost & found."""
 import os
 from pathlib import Path
-
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +25,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -55,12 +55,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# SQLite by default so the team can run it with zero setup.
-# Set DATABASE_URL to a Postgres URL when you're ready for pgvector / deployment.
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 if DATABASE_URL.startswith("postgres"):
     from urllib.parse import urlparse
-
     u = urlparse(DATABASE_URL)
     DATABASES = {
         "default": {
@@ -97,6 +94,7 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -109,21 +107,17 @@ LOGOUT_REDIRECT_URL = "items:home"
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
-# Emails print to the console in dev. Swap for a real backend before deploying.
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "FindIt <noreply@findit.local>"
 
-# Campus rule: only these email domains may register. Empty list = allow any.
 ALLOWED_EMAIL_DOMAINS = [
     d.strip()
     for d in os.getenv("ALLOWED_EMAIL_DOMAINS", "iitk.ac.in").split(",")
     if d.strip()
 ]
 
-# Sign-in codes
 OTP_TTL_MINUTES = int(os.getenv("OTP_TTL_MINUTES", "10"))
 
-# Stay signed in until the user signs out.
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 180  # 180 days
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 180
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
